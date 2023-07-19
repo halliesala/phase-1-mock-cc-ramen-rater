@@ -22,6 +22,9 @@ fetch(`http://localhost:3000/ramens`)
   ramenObjArr.forEach(ramenObj => {
     addRamenToNavBar(ramenObj);
   })
+
+  // Pre-populate detail window with first ramen
+  loadRamentoDetailWindow(ramenObjArr[0]);
 })
 
 // New ramen form should add new ramen (non-persistant)
@@ -36,22 +39,27 @@ form.addEventListener('submit', (e) => {
     comment: e.target['new-comment'].value,
   };
   addRamenToNavBar(newRamenObj);
+
+  // Upon submitting form, new ramen automatically loads to detail window
+  loadRamentoDetailWindow(newRamenObj);
 })
 
 
 function addRamenToNavBar(ramenObj) {
   const newImg = document.createElement('img');
   newImg.src = ramenObj.image;
-  // Add event listener -- when menu item in nav bar clicked, load ramen to detail window (#ramen-detail)
+  // When menu item in nav bar clicked, load ramen to detail window (#ramen-detail)
   newImg.addEventListener('click', () => {
-    // Update image, name, restauraunt, rating, comment
-    detailImage.src = ramenObj.image;
-    detailName.textContent = ramenObj.name;
-    detailRestaurant.textContent = ramenObj.restauraunt;
-    detailRating.textContent = ramenObj.rating;
-    detailComment.textContent = ramenObj.comment;
+    loadRamentoDetailWindow(ramenObj);
   })
   navBar.appendChild(newImg);
 }
 
-
+function loadRamentoDetailWindow(ramenObj) {
+  // Update image, name, restauraunt, rating, comment
+  detailImage.src = ramenObj.image;
+  detailName.textContent = ramenObj.name;
+  detailRestaurant.textContent = ramenObj.restauraunt;
+  detailRating.textContent = ramenObj.rating;
+  detailComment.textContent = ramenObj.comment;
+}
