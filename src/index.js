@@ -99,6 +99,7 @@ function loadRamenToDetailWindow(ramenObj) {
 
   // Edit ramen form updates detail window (non-persistent)
   // We put this inside loadRamenToDetailWindow() to access the ramenObj we want to update
+  // Updating to make persistent
   editRamenForm.addEventListener('submit', (e) => {
     e.preventDefault();
     // Build updated ramen object
@@ -113,6 +114,21 @@ function loadRamenToDetailWindow(ramenObj) {
       comment: e.target['new-comment'].value || ramenObj.comment,
     }
     loadRamenToDetailWindow(editedRamenObj);
+
+    // Patch to db
+    const PATCH_OPTIONS = {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(editedRamenObj),
+    }
+    fetch(`http://localhost:3000/ramens/${ramenObj.id}`, PATCH_OPTIONS)
+    .then(resp => resp.json())
+    .then(newRamenObj => {
+    console.log("Patch request successful!");
+    })
   })
 }
 
