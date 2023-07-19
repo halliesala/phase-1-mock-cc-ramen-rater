@@ -1,5 +1,3 @@
-// write your code here
-
 // Node constants
 const navBar = document.querySelector('#ramen-menu');
 
@@ -55,13 +53,19 @@ newRamenForm.addEventListener('submit', (e) => {
   .then(resp => resp.json())
   .then(newRamenObj => {
     // At this point we have an id and it's safe to call functions with patch requests
-    console.log("Post request successful!");
     addRamenToNavBar(newRamenObj);
-    // Upon submitting form, new ramen automatically loads to detail window
+    // New ramen automatically loads to detail window
     loadRamenToDetailWindow(newRamenObj);
   })
 })
 
+
+
+/**
+ * 
+ * Adds a ramen dish to the nav bar
+ * 
+ */
 
 
 function addRamenToNavBar(ramenObj) {
@@ -102,8 +106,17 @@ function addRamenToNavBar(ramenObj) {
   navBar.appendChild(newDiv);
 }
 
-function loadRamenToDetailWindow(ramenObj) {
 
+/**
+ * 
+ * Populates detail window with ramen dish
+ * 
+ * 
+ * 
+ */
+
+
+function loadRamenToDetailWindow(ramenObj) {
   // Update image, name, restauraunt, rating, comment
   detailImage.src = ramenObj.image;
   detailName.textContent = ramenObj.name;
@@ -113,24 +126,14 @@ function loadRamenToDetailWindow(ramenObj) {
 
   // Edit ramen form updates detail window and patches to db
   // We put this inside loadRamenToDetailWindow() to access the ramenObj we want to update
-
   function editFormEventHandler(e) {
     e.preventDefault();
-    // Build updated ramen object
-    const editedRamenObj = {
-      // These fields don't change, but we need them to call loadRamenToDetailWindow()
-      id: ramenObj.id,
-      name: ramenObj.name,
-      restaurant: ramenObj.restaurant,
-      image: ramenObj.image,
+    const ramenObjEdits = {
       // If form is submitted with empty fields, we keep existing rating or comment 
-      // A rating of zero will render correctly -- it's a string and therefore truthy?
       rating: e.target.rating.value || ramenObj.rating,
       comment: e.target['new-comment'].value || ramenObj.comment,
     }
-
-    loadRamenToDetailWindow(editedRamenObj);
-
+    
     // Patch to db
     const PATCH_OPTIONS = {
       method: 'PATCH',
@@ -138,13 +141,14 @@ function loadRamenToDetailWindow(ramenObj) {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify(editedRamenObj),
+      body: JSON.stringify(ramenObjEdits),
     }
-
-    fetch(`http://localhost:3000/ramens/${editedRamenObj.id}`, PATCH_OPTIONS)
+    
+    fetch(`http://localhost:3000/ramens/${ramenObj.id}`, PATCH_OPTIONS)
     .then(resp => resp.json())
     .then(editedRamenObj => {
       editRamenForm.reset();
+      loadRamenToDetailWindow(editedRamenObj);
     })
   }
 
@@ -153,7 +157,6 @@ function loadRamenToDetailWindow(ramenObj) {
   // ramens are kept strictly separate -- using one set of nodes and just replacing content seems
   // to be a source of bugs.
   editRamenForm.onsubmit = editFormEventHandler;
-
 
   idOfDisplayedRamen = ramenObj.id;
 }
