@@ -13,6 +13,9 @@ const detailComment = document.querySelector('#comment-display')
 const newRamenForm = document.querySelector('#new-ramen');
 const editRamenForm = document.querySelector('#edit-ramen');
 
+// State variables
+let idOfDisplayedRamen;
+
 
 // Get content from db
 fetch(`http://localhost:3000/ramens`)
@@ -67,15 +70,26 @@ function addRamenToNavBar(ramenObj) {
   const newImg = document.createElement('img');
   newImg.src = ramenObj.image;
 
-  // Add delete button
+  // Add delete button & event listener to fetch delete to db
   const deleteButton = document.createElement('button');
   deleteButton.className = "btn";
   deleteButton.textContent = ' X '
   deleteButton.addEventListener('click', (e) => {
-    // When clicked, we remove image and all children
-    e.target.parentNode.remove();
-    // We also want to remove ramen from display window if it's loaded there
-    // NOTE TO RETURN TO THIS!    
+    // fetch delete request to db
+    fetch(`http://localhost:3000/ramens/${ramenObj.id}`, {method: 'DELETE'})
+    .then(resp => {
+      // When clicked, we remove image and all children
+      e.target.parentNode.remove();
+      // We also want to remove ramen from display window if it's loaded there
+      if (idOfDisplayedRamen === ramenObj.id) {
+        // fetch the first non-deleted ramen from db and display that
+        fetch(`http://localhost:3000/ramens`)
+        .then(resp => resp.json())
+        .then(ramenObjArr => {
+          loadRamenToDetailWindow(ramenObjArr[0]);
+        })
+      }
+    })
   })
   
   // When menu item in nav bar clicked, load ramen to detail window (#ramen-detail)
@@ -130,9 +144,8 @@ function loadRamenToDetailWindow(ramenObj) {
     fetch(`http://localhost:3000/ramens/${editedRamenObj.id}`, PATCH_OPTIONS)
     .then(resp => resp.json())
     .then(editedRamenObj => {
-      console.log(editedRamenObj);
+      editRamenForm.reset();
     })
-    .catch(error => console.log(error))
   }
 
   // Using .onsubmit instead of addEventHandler to prevent multiple-event-handler weirdness
@@ -141,7 +154,8 @@ function loadRamenToDetailWindow(ramenObj) {
   // to be a source of bugs.
   editRamenForm.onsubmit = editFormEventHandler;
 
-  editRamenForm.reset();
+
+  idOfDisplayedRamen = ramenObj.id;
 }
 
 
