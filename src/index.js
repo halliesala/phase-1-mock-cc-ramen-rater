@@ -12,6 +12,8 @@ const newRamenForm = document.querySelector('#new-ramen');
 const editRamenForm = document.querySelector('#edit-ramen');
 
 // State variables
+
+// Used when deleting ramen currently displayed in detailWindow
 let idOfDisplayedRamen;
 
 
