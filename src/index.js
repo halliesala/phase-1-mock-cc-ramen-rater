@@ -47,13 +47,30 @@ newRamenForm.addEventListener('submit', (e) => {
 
 
 function addRamenToNavBar(ramenObj) {
+  const newDiv = document.createElement('div');
+  newDiv.className = "container";
   const newImg = document.createElement('img');
   newImg.src = ramenObj.image;
+
+  // Add delete button
+  const deleteButton = document.createElement('button');
+  deleteButton.className = "btn";
+  deleteButton.textContent = ' X '
+  deleteButton.addEventListener('click', (e) => {
+    // When clicked, we remove image and all children
+    e.target.parentNode.remove();
+    // We also want to remove ramen from display window if it's loaded there
+    
+  })
+  
   // When menu item in nav bar clicked, load ramen to detail window (#ramen-detail)
   newImg.addEventListener('click', () => {
     loadRamenToDetailWindow(ramenObj);
   })
-  navBar.appendChild(newImg);
+  
+  newDiv.appendChild(newImg);
+  newDiv.appendChild(deleteButton);
+  navBar.appendChild(newDiv);
 }
 
 function loadRamenToDetailWindow(ramenObj) {
@@ -82,3 +99,5 @@ function loadRamenToDetailWindow(ramenObj) {
     loadRamenToDetailWindow(editedRamenObj);
   })
 }
+
+
