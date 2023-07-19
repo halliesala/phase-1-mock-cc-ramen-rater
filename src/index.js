@@ -27,8 +27,7 @@ fetch(`http://localhost:3000/ramens`)
   loadRamenToDetailWindow(ramenObjArr[0]);
 })
 
-// New ramen form should add new ramen (non-persistent)
-// Updating this to persist -- we will post new ramen to db
+// New ramen form adds new ramen to nav bar & display window & post to db
 newRamenForm.addEventListener('submit', (e) => {
   e.preventDefault();
   // Add new ramen to nav bar
@@ -97,9 +96,8 @@ function loadRamenToDetailWindow(ramenObj) {
   detailRating.textContent = ramenObj.rating;
   detailComment.textContent = ramenObj.comment;
 
-  // Edit ramen form updates detail window (non-persistent)
+  // Edit ramen form updates detail window and patches to db
   // We put this inside loadRamenToDetailWindow() to access the ramenObj we want to update
-  // Updating to make persistent
   editRamenForm.addEventListener('submit', (e) => {
     e.preventDefault();
     // Build updated ramen object
