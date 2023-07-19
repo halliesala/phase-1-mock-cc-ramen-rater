@@ -28,6 +28,7 @@ fetch(`http://localhost:3000/ramens`)
 })
 
 // New ramen form should add new ramen (non-persistent)
+// Updating this to persist -- we will post new ramen to db
 newRamenForm.addEventListener('submit', (e) => {
   e.preventDefault();
   // Add new ramen to nav bar
@@ -42,6 +43,21 @@ newRamenForm.addEventListener('submit', (e) => {
 
   // Upon submitting form, new ramen automatically loads to detail window
   loadRamenToDetailWindow(newRamenObj);
+
+  // Post new ramen to db
+  const POST_OPTIONS = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify(newRamenObj),
+  }
+  fetch(`http://localhost:3000/ramens`, POST_OPTIONS)
+  .then(resp => resp.json())
+  .then(newRamenObj => {
+    console.log("Post request successful!");
+  })
 })
 
 
@@ -60,7 +76,7 @@ function addRamenToNavBar(ramenObj) {
     // When clicked, we remove image and all children
     e.target.parentNode.remove();
     // We also want to remove ramen from display window if it's loaded there
-    
+    // NOTE TO RETURN TO THIS!    
   })
   
   // When menu item in nav bar clicked, load ramen to detail window (#ramen-detail)
