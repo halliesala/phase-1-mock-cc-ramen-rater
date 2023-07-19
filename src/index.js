@@ -10,8 +10,8 @@ const detailRestaurant = document.querySelector('.restaurant');
 const detailRating = document.querySelector('#rating-display');
 const detailComment = document.querySelector('#comment-display')
 
-const form = document.querySelector('#new-ramen');
-
+const newRamenForm = document.querySelector('#new-ramen');
+const editRamenForm = document.querySelector('#edit-ramen');
 
 
 // Get content from db
@@ -24,11 +24,11 @@ fetch(`http://localhost:3000/ramens`)
   })
 
   // Pre-populate detail window with first ramen
-  loadRamentoDetailWindow(ramenObjArr[0]);
+  loadRamenToDetailWindow(ramenObjArr[0]);
 })
 
-// New ramen form should add new ramen (non-persistant)
-form.addEventListener('submit', (e) => {
+// New ramen form should add new ramen (non-persistent)
+newRamenForm.addEventListener('submit', (e) => {
   e.preventDefault();
   // Add new ramen to nav bar
   const newRamenObj = {
@@ -41,8 +41,9 @@ form.addEventListener('submit', (e) => {
   addRamenToNavBar(newRamenObj);
 
   // Upon submitting form, new ramen automatically loads to detail window
-  loadRamentoDetailWindow(newRamenObj);
+  loadRamenToDetailWindow(newRamenObj);
 })
+
 
 
 function addRamenToNavBar(ramenObj) {
@@ -50,16 +51,34 @@ function addRamenToNavBar(ramenObj) {
   newImg.src = ramenObj.image;
   // When menu item in nav bar clicked, load ramen to detail window (#ramen-detail)
   newImg.addEventListener('click', () => {
-    loadRamentoDetailWindow(ramenObj);
+    loadRamenToDetailWindow(ramenObj);
   })
   navBar.appendChild(newImg);
 }
 
-function loadRamentoDetailWindow(ramenObj) {
+function loadRamenToDetailWindow(ramenObj) {
   // Update image, name, restauraunt, rating, comment
   detailImage.src = ramenObj.image;
   detailName.textContent = ramenObj.name;
   detailRestaurant.textContent = ramenObj.restauraunt;
   detailRating.textContent = ramenObj.rating;
   detailComment.textContent = ramenObj.comment;
+
+  // Edit ramen form updates detail window (non-persistent)
+  // We put this inside loadRamenToDetailWindow() to access the ramenObj we want to update
+  editRamenForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Build updated ramen object
+    const editedRamenObj = {
+      // These fields don't change, but we need them to call loadRamenToDetailWindow()
+      name: ramenObj.name,
+      restaurant: ramenObj.restaurant,
+      image: ramenObj.image,
+      // If form is submitted with empty fields, we keep existing rating or comment 
+      // A rating of zero will render correctly -- it's a string and therefore truthy
+      rating: e.target.rating.value || ramenObj.rating,
+      comment: e.target['new-comment'].value || ramenObj.comment,
+    }
+    loadRamenToDetailWindow(editedRamenObj);
+  })
 }
