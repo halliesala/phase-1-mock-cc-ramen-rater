@@ -30,7 +30,7 @@ fetch(`http://localhost:3000/ramens`)
 // New ramen form adds new ramen to nav bar & display window & post to db
 newRamenForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  // Add new ramen to nav bar
+  // Build newRamenObj -- careful; this doesn't have an id!
   const newRamenObj = {
     name: e.target.name.value,
     restaurant: e.target.restaurant.value,
@@ -38,12 +38,8 @@ newRamenForm.addEventListener('submit', (e) => {
     rating: e.target.rating.value,
     comment: e.target['new-comment'].value,
   };
-  addRamenToNavBar(newRamenObj);
 
-  // Upon submitting form, new ramen automatically loads to detail window
-  loadRamenToDetailWindow(newRamenObj);
-
-  // Post new ramen to db
+  // Post new ramen to db & get id
   const POST_OPTIONS = {
     method: 'POST',
     headers: {
@@ -55,7 +51,11 @@ newRamenForm.addEventListener('submit', (e) => {
   fetch(`http://localhost:3000/ramens`, POST_OPTIONS)
   .then(resp => resp.json())
   .then(newRamenObj => {
+    // At this point we have an id and it's safe to call functions with patch requests
     console.log("Post request successful!");
+    addRamenToNavBar(newRamenObj);
+    // Upon submitting form, new ramen automatically loads to detail window
+    loadRamenToDetailWindow(newRamenObj);
   })
 })
 
@@ -89,6 +89,7 @@ function addRamenToNavBar(ramenObj) {
 }
 
 function loadRamenToDetailWindow(ramenObj) {
+
   // Update image, name, restauraunt, rating, comment
   detailImage.src = ramenObj.image;
   detailName.textContent = ramenObj.name;
@@ -98,19 +99,22 @@ function loadRamenToDetailWindow(ramenObj) {
 
   // Edit ramen form updates detail window and patches to db
   // We put this inside loadRamenToDetailWindow() to access the ramenObj we want to update
-  editRamenForm.addEventListener('submit', (e) => {
+
+  function editFormEventHandler(e) {
     e.preventDefault();
     // Build updated ramen object
     const editedRamenObj = {
       // These fields don't change, but we need them to call loadRamenToDetailWindow()
+      id: ramenObj.id,
       name: ramenObj.name,
       restaurant: ramenObj.restaurant,
       image: ramenObj.image,
       // If form is submitted with empty fields, we keep existing rating or comment 
-      // A rating of zero will render correctly -- it's a string and therefore truthy
+      // A rating of zero will render correctly -- it's a string and therefore truthy?
       rating: e.target.rating.value || ramenObj.rating,
       comment: e.target['new-comment'].value || ramenObj.comment,
     }
+
     loadRamenToDetailWindow(editedRamenObj);
 
     // Patch to db
@@ -122,12 +126,22 @@ function loadRamenToDetailWindow(ramenObj) {
       },
       body: JSON.stringify(editedRamenObj),
     }
-    fetch(`http://localhost:3000/ramens/${ramenObj.id}`, PATCH_OPTIONS)
+
+    fetch(`http://localhost:3000/ramens/${editedRamenObj.id}`, PATCH_OPTIONS)
     .then(resp => resp.json())
-    .then(newRamenObj => {
-    console.log("Patch request successful!");
+    .then(editedRamenObj => {
+      console.log(editedRamenObj);
     })
-  })
+    .catch(error => console.log(error))
+  }
+
+  // Using .onsubmit instead of addEventHandler to prevent multiple-event-handler weirdness
+  // I think a better solution would probably have been to replace old nodes & ensure different
+  // ramens are kept strictly separate -- using one set of nodes and just replacing content seems
+  // to be a source of bugs.
+  editRamenForm.onsubmit = editFormEventHandler;
+
+  editRamenForm.reset();
 }
 
 
